@@ -1,8 +1,13 @@
-# ImeOffAnyDesk.exeに関して
+# ImeOffAnyDeskに関して
 
 ## 概要
 
 AnyDeskでリモートPCを操作中に、ホストPCのIMEがONになったらOFFにするアプリです。
+
+## ダウンロード
+
+v1.0.0<br>
+https://github.com/Yamine1San/ImeOffAnyDesk/releases/tag/v1.0.0
 
 ## 操作方法
 
