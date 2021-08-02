@@ -516,11 +516,11 @@ BOOL ForegroundWindowIsAnyDesk()
                     {
                         // exe名とウインドウテキストタイトルからAnyDeskで操作中か判定
 
-                        std::tregex re1(L".*\\AnyDesk.exe");
+                        std::tregex re1(L"^.*\\AnyDesk.exe$");
                         std::tsmatch wm1;
                         std::tstring wtest1(exePath);
 
-                        std::tregex re2(L".* - AnyDesk");
+                        std::tregex re2(L"^.* - AnyDesk$");
                         std::tsmatch wm2;
                         std::tstring wtest2(lActWinText);
 
