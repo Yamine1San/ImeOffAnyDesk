@@ -18,6 +18,47 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     // TODO: ここにコードを挿入してください。
 
+    // ------------------------------------------------------------------------
+    // 二重起動防止
+    // ------------------------------------------------------------------------
+
+    // 自分のプロセスIDから自分のexe名を取得
+    DWORD dwCurrentProcessId = GetCurrentProcessId();
+    HANDLE hProcess = OpenProcess(
+        PROCESS_QUERY_INFORMATION | PROCESS_VM_READ,
+        FALSE,
+        dwCurrentProcessId
+    );
+    TCHAR szModuleName[MAX_PATH];
+    GetModuleBaseName(hProcess, NULL, szModuleName, MAX_PATH);
+
+    // 自分のexe名と同じプロセスのプロセスIDを取得(自分のプロセスIDは除く)
+    DWORD dwExeProcessIds[1024] = { 0 };
+    GetExeOtherProcessIds(szModuleName, dwExeProcessIds, dwCurrentProcessId);
+
+    // 既に起動済みだった場合
+    if (0 < dwExeProcessIds[0])
+    {
+        // プロセスIDからウインドウハンドルを取得
+        EnumWindows(EnumWindowsProcMy, dwExeProcessIds[0]);
+        if (hWnd_existed)
+        {
+            // アイコン化されているのであれば、元のサイズに戻す
+            if (IsIconic(hWnd_existed))
+            {
+                ShowWindow(hWnd_existed, SW_RESTORE);
+            }
+            else
+            {
+                // 見つかったウィンドウをフォアグラウンドにする
+                SetForegroundWindow(GetLastActivePopup(hWnd_existed));
+            }
+        }
+        return FALSE;
+    }
+
+    // ------------------------------------------------------------------------
+
     // アイコン AddSystemTrayIcon()で使用するため
     hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_IMEOFFANYDESK));
 
@@ -488,19 +529,18 @@ BOOL ForegroundWindowIsAnyDesk()
         GetWindowThreadProcessId(hActWin, &dwPID);
 
         // プロセスのハンドルを取得
-        HANDLE Handle = OpenProcess(
+        HANDLE hProcess = OpenProcess(
             PROCESS_QUERY_INFORMATION | PROCESS_VM_READ,
             FALSE,
             dwPID
         );
 
-        if (Handle)
+        if (hProcess)
         {
             // .exeのフルパス
             TCHAR exePath[MAX_PATH];
-            if (GetModuleFileNameEx(Handle, 0, exePath, MAX_PATH))
+            if (GetModuleFileNameEx(hProcess, 0, exePath, MAX_PATH))
             {
-                CloseHandle(Handle);
                 //TextOut(hdc, 10, 30, exePath, lstrlen(exePath));
 
                 // ウインドウテキスト
@@ -531,11 +571,12 @@ BOOL ForegroundWindowIsAnyDesk()
                     }
                     else
                     {
-                        CloseHandle(Handle);
                         DebugLastError(__FILE__, __LINE__);
                     }
                 }
             }
+
+            CloseHandle(hProcess);
         }
     }
 
@@ -565,4 +606,73 @@ VOID TextOutCommonMessage(HDC hdc)
 
     TCHAR message7[] = _T("## 現在の状態（随時更新）##");
     TextOut(hdc, 10, 150, message7, _tcslen(message7));
+}
+
+// sTargetExeNameのプロセスIDをdwExeProcessIdsに設定
+// dwIgnoreProcessIdのプロセスIDは除外
+VOID GetExeOtherProcessIds(CString sTargetExeName, DWORD* dwExeProcessIds, DWORD dwIgnoreProcessId)
+{
+    DWORD dwAllProcessIds[1024] = { 0 };
+    DWORD cbNeeded = 0;
+    if (!EnumProcesses(dwAllProcessIds, sizeof(dwAllProcessIds), &cbNeeded))
+    {
+        return;
+    }
+
+    int j = 0;
+    int nProc = cbNeeded / sizeof(DWORD);
+    for (int i = 0; i < nProc; i++)
+    {
+        if (dwAllProcessIds[i] == dwIgnoreProcessId)
+        {
+            continue;
+        }
+
+        TCHAR szProcessName[MAX_PATH] = TEXT("<unknown>");
+
+        // Get a handle to the process.
+        HANDLE hProcess = OpenProcess(
+            PROCESS_QUERY_INFORMATION | PROCESS_VM_READ,
+            FALSE,
+            dwAllProcessIds[i]
+        );
+
+        // Get the process name.
+        if (hProcess)
+        {
+            HMODULE hMod;
+            DWORD cbNeeded;
+
+            if (EnumProcessModules(hProcess, &hMod, sizeof(hMod),
+                &cbNeeded))
+            {
+                GetModuleBaseName(hProcess, hMod, szProcessName,
+                    sizeof(szProcessName) / sizeof(TCHAR));
+
+                CString sProcName = CString(szProcessName).MakeUpper();
+                if (sProcName == sTargetExeName.MakeUpper())
+                {
+                    dwExeProcessIds[j] = dwAllProcessIds[i];
+                    ++j;
+                }
+            }
+
+            // Release the handle to the process.
+            CloseHandle(hProcess);
+        }
+    }
+}
+
+// プロセスIDからウインドウハンドルを取得
+// https://stackoverflow.com/questions/11711417/get-hwnd-by-process-id-c
+BOOL CALLBACK EnumWindowsProcMy(HWND hwnd, LPARAM lParam)
+{
+    DWORD lpdwProcessId;
+    GetWindowThreadProcessId(hwnd, &lpdwProcessId);
+    if (lpdwProcessId == lParam)
+    {
+        hWnd_existed = hwnd;
+        return FALSE;
+    }
+    return TRUE;
 }

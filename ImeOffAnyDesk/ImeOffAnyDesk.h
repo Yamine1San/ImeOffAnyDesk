@@ -1,6 +1,7 @@
 #pragma once
 
 #include "resource.h"
+#include <atlstr.h>
 
 #define MAX_LOADSTRING 100
 #define WM_TASKTRAY (WM_APP + 1)                // タスクトレイのマウス・メッセージ定数
@@ -15,6 +16,7 @@ WCHAR szWindowClass[MAX_LOADSTRING];            // メイン ウィンドウ クラス名
 INT flg_timer_ime = 0;
 HICON hIcon;
 HMENU hTrayIconMenu;
+HWND hWnd_existed;
 
 // このコード モジュールに含まれる関数の宣言を転送します:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -27,3 +29,5 @@ VOID DellSystemTrayIcon(HWND hWnd);
 VOID DebugLastError(const char* file, int line);
 BOOL ForegroundWindowIsAnyDesk();
 VOID TextOutCommonMessage(HDC hdc);
+VOID GetExeOtherProcessIds(CString sTargetExeName, DWORD* dwExeProcessIds, DWORD dwCurrentProcessId);
+BOOL CALLBACK EnumWindowsProcMy(HWND hwnd, LPARAM lParam);
