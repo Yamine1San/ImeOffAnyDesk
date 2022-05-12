@@ -3,8 +3,8 @@
 ## アプリ概要
 
 AnyDeskでリモートPCを操作中に、ホストPCのIMEがONになったらOFFにする常駐アプリです。
-<br>ホストPCのIMEをOFFにしたままリモートPCIMEだけをONOFF切り替えが可能になり、AnyDeskの操作が快適になります。
-<br>その状態でAnyDeskでリモートPCを操作中にIMEをONにするとOFFになります。
+<br>ホストPCのIMEをOFFにしたままリモートPCのIMEだけをONとOFFの切り替えが可能になります。
+<br>AnyDeskでの日本語の入力が快適になります。
 
 ## ダウンロード
 
