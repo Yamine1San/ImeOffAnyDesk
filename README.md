@@ -2,14 +2,14 @@
 
 ## アプリ概要
 
-AnyDeskでリモートPCを操作中に、ホストPCのIMEがONになったらOFFにする常駐アプリです。
-<br>ホストPCのIMEをOFFにしたままリモートPCのIMEだけをONとOFFの切り替えが可能になります。
+AnyDeskでリモートPCを操作中に、ローカルPCのIMEがONになったらOFFにする常駐アプリです。
+<br>ローカルPCのIMEをOFFにしたままリモートPCのIMEだけをONとOFFの切り替えが可能になります。
 <br>AnyDeskでの日本語の入力が快適になります。
 
 ## ダウンロード
 
 v1.0.0<br>
-https://github.com/Yamine1San/ImeOffAnyDesk/releases/tag/v1.0.0
+https://github.com/Yamine1San/ImeOffAnyDesk/releases/download/v1.0.0/ImeOffAnyDesk.zip
 
 
 ## 起動方法
@@ -35,5 +35,5 @@ https://github.com/Yamine1San/ImeOffAnyDesk/releases/tag/v1.0.0
 ### 処理の詳細
 
 * 1秒おきにAnyDeskでリモートPCを操作中か判定する。
-* リモートPC操作中の場合、0.2秒おきにホストPCのIMEの状態をチェックし、ホストPCのIMEがONになったら即座にOFFにする。
+* リモートPC操作中の場合、0.2秒おきにローカルPCのIMEの状態をチェックし、ローカルPCのIMEがONになったら即座にOFFにする。
 
